@@ -4,7 +4,7 @@ import { authClient } from "@/lib/auth/client";
 import { ensureProfile } from "@/lib/campus/api";
 import { CAMPUS_ZONES } from "@/lib/campus/types";
 import { Button, Field, Input } from "@/components/campus/ui";
-import { ShieldIcon } from "@/components/campus/shell";
+import { completeEmailAuth } from "@/lib/campus/session";
 
 export const Route = createFileRoute("/register")({ component: Register });
 
@@ -31,9 +31,11 @@ function Register() {
       password,
       name: fullName.trim(),
     });
-    setBusy(false);
-    if (result.error) {
-      setError(result.error.message || "Could not create the account.");
+    try {
+      await completeEmailAuth(result);
+    } catch (err) {
+      setBusy(false);
+      setError(err instanceof Error ? err.message : "Could not create the account.");
       return;
     }
     try {
@@ -47,18 +49,23 @@ function Register() {
       });
     } catch (err) {
       setError(err instanceof Error ? err.message : "Account created, but profile setup failed.");
+      setBusy(false);
       return;
     }
+    setBusy(false);
     navigate({ to: "/home" });
   }
 
   return (
     <main className="mx-auto flex min-h-screen max-w-lg flex-col px-6 py-8">
-      <header className="flex items-center gap-3">
+      <div className="-ml-2">
+        <PageNav />
+      </div>
+      <header className="mt-2 flex items-center gap-3">
         <span className="grid size-10 place-items-center rounded-md bg-teal text-slate-950">
           <ShieldIcon />
         </span>
-        <p className="font-semibold">Campus Lost & Found</p>
+        <p className="text-3xl font-bold tracking-tight">Campus Lost & Found</p>
       </header>
       <h1 className="mt-10 font-display text-4xl leading-tight">Create student account</h1>
       <p className="mt-2 text-sm text-muted">New accounts start as Student. Staff and admin roles are assigned by administrators only.</p>

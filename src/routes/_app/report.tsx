@@ -1,7 +1,8 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useState } from "react";
-import { reportItem } from "@/lib/campus/api";
-import { CAMPUS_ZONES, CATEGORIES, type ItemType } from "@/lib/campus/types";
+import { useEffect, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { listDesks, reportItem } from "@/lib/campus/api";
+import { CAMPUS_ZONES, CATEGORIES, ITEM_COLORS, type ItemType } from "@/lib/campus/types";
 import { AuthGate } from "@/components/campus/shell";
 import { Button, Field, Input, Textarea } from "@/components/campus/ui";
 import { cn } from "@/lib/campus/cn";
@@ -18,18 +19,27 @@ function ReportPage() {
 
 function ReportForm() {
   const navigate = useNavigate();
+  const desks = useQuery({ queryKey: ["desks"], queryFn: () => listDesks() });
   const [type, setType] = useState<ItemType>("LOST");
   const [title, setTitle] = useState("");
   const [category, setCategory] = useState<(typeof CATEGORIES)[number]>("Electronics");
-  const [location, setLocation] = useState("");
   const [zone, setZone] = useState<string>(CAMPUS_ZONES[0]);
-  const [color, setColor] = useState("");
+  const [locationDetail, setLocationDetail] = useState("");
+  const [color, setColor] = useState("Black");
   const [brand, setBrand] = useState("");
   const [marks, setMarks] = useState("");
   const [description, setDescription] = useState("");
+  const [deskId, setDeskId] = useState("");
   const [photoUrl, setPhotoUrl] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+
+  useEffect(() => {
+    const match = (desks.data ?? []).find(
+      (d) => d.location === zone || d.name.toLowerCase().includes(zone.toLowerCase()),
+    );
+    if (match) setDeskId(match.id);
+  }, [zone, desks.data]);
 
   function onFile(file: File | undefined) {
     if (!file) return;
@@ -80,9 +90,10 @@ function ReportForm() {
           brand,
           identifyingMarks: marks,
           itemType: type,
-          location,
+          location: locationDetail.trim() || zone,
           locationZone: zone,
           photoUrl,
+          custodyDeskId: type === "FOUND" ? deskId || null : null,
         },
       });
       navigate({ to: "/items/$itemId", params: { itemId: result.item.id } });
@@ -96,7 +107,11 @@ function ReportForm() {
     <form className="space-y-4" onSubmit={onSubmit}>
       <div>
         <h1 className="font-display text-3xl">Report an item</h1>
-        <p className="text-sm text-muted">Lost or found reports enter the campus registry immediately.</p>
+        <p className="text-sm text-muted">
+          {type === "FOUND"
+            ? "After you report a found item, take it to that area’s staff. Claims open only after they confirm receipt."
+            : "Lost reports enter the campus registry immediately for Smart Match."}
+        </p>
       </div>
       <div className="grid grid-cols-2 gap-2">
         {(["LOST", "FOUND"] as const).map((t) => (
@@ -127,10 +142,7 @@ function ReportForm() {
           ))}
         </select>
       </Field>
-      <Field label="Campus location">
-        <Input required value={location} onChange={(e) => setLocation(e.target.value)} data-testid="report_location_input" />
-      </Field>
-      <Field label="Zone">
+      <Field label="Campus zone">
         <select
           className="min-h-11 w-full rounded-sm border border-border bg-surface px-3 text-sm"
           value={zone}
@@ -141,16 +153,56 @@ function ReportForm() {
           ))}
         </select>
       </Field>
-      <div className="grid grid-cols-2 gap-3">
-        <Field label="Color">
-          <Input value={color} onChange={(e) => setColor(e.target.value)} />
+      <Field label="More specific location">
+        <Input
+          value={locationDetail}
+          onChange={(e) => setLocationDetail(e.target.value)}
+          placeholder="Library 2nd floor, east tables"
+          data-testid="report_location_input"
+        />
+      </Field>
+      {type === "FOUND" ? (
+        <Field label="Turned in at">
+          <select
+            className="min-h-11 w-full rounded-sm border border-border bg-surface px-3 text-sm"
+            value={deskId}
+            onChange={(e) => setDeskId(e.target.value)}
+          >
+            <option value="">Not at a desk yet</option>
+            {(desks.data ?? []).map((d) => (
+              <option key={d.id} value={d.id}>
+                {d.name}
+              </option>
+            ))}
+          </select>
         </Field>
-        <Field label="Brand">
-          <Input value={brand} onChange={(e) => setBrand(e.target.value)} />
-        </Field>
-      </div>
-      <Field label="Identifying marks">
-        <Input value={marks} onChange={(e) => setMarks(e.target.value)} />
+      ) : null}
+      <Field label="Color">
+        <div className="flex flex-wrap gap-2">
+          {ITEM_COLORS.map((c) => (
+            <button
+              key={c}
+              type="button"
+              onClick={() => setColor(c)}
+              className={cn(
+                "min-h-11 rounded-full px-3 text-xs font-medium",
+                color === c ? "bg-fg text-bg" : "bg-surface-2 text-muted",
+              )}
+            >
+              {c}
+            </button>
+          ))}
+        </div>
+      </Field>
+      <Field label="Brand">
+        <Input value={brand} onChange={(e) => setBrand(e.target.value)} />
+      </Field>
+      <Field label="Identifying marks (kept private)">
+        <Input
+          value={marks}
+          onChange={(e) => setMarks(e.target.value)}
+          placeholder="Serial, initials, unique wear"
+        />
       </Field>
       <Field label="Details">
         <Textarea value={description} onChange={(e) => setDescription(e.target.value)} data-testid="report_desc_input" />

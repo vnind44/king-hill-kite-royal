@@ -45,6 +45,24 @@ export const CAMPUS_ZONES = [
   "Security Office",
 ] as const;
 
+export const ITEM_COLORS = [
+  "Black",
+  "White",
+  "Blue",
+  "Navy",
+  "Red",
+  "Green",
+  "Yellow",
+  "Brown",
+  "Gray",
+  "Silver",
+  "Gold",
+  "Pink",
+  "Purple",
+  "Orange",
+  "Other",
+] as const;
+
 export type CampusUser = {
   id: string;
   email: string;
@@ -65,6 +83,12 @@ export type CampusUser = {
   quietMode: boolean;
   theme: "light" | "dark" | "system";
   createdAt: string;
+  assignedAreas?: string[];
+  permissions?: {
+    canConfirmReceipt: boolean;
+    canVerifyClaims: boolean;
+    canCompleteHandover: boolean;
+  };
 };
 
 export type Desk = {
@@ -99,6 +123,8 @@ export type CampusItem = {
   locationZone: string;
   photoUrl: string | null;
   custodyDeskId: string | null;
+  inCustody: boolean;
+  custodyStaffId?: string | null;
   matchScore: number | null;
   matchItemId: string | null;
   matchExplanation: string | null;
@@ -115,6 +141,7 @@ export type Claim = {
   verificationNote: string;
   status: ClaimStatus;
   reviewedBy: string | null;
+  pinAvailable: boolean;
   createdAt: string;
   updatedAt: string;
 };

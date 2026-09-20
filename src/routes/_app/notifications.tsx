@@ -35,8 +35,8 @@ function NotificationsBody() {
         <p className="text-sm text-muted">No notifications yet.</p>
       ) : (
         (list.data ?? []).map((n) => (
-          <Card key={n.id} className="p-4">
-            <p className="text-[10px] font-bold uppercase tracking-wide text-teal">{n.type}</p>
+          <Card key={n.id} className={n.read ? "p-4" : "border-teal/40 p-4"}>
+            <p className="text-xs font-bold uppercase tracking-wide text-teal">{n.type}</p>
             <p className="font-semibold">{n.title}</p>
             <p className="text-sm text-muted">{n.body}</p>
             <div className="mt-2 flex items-center justify-between text-xs text-muted">

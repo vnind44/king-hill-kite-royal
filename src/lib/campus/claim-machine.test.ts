@@ -11,13 +11,14 @@ describe("claim state machine", () => {
     assert.equal(canTransition("HANDOVER_PENDING", "COMPLETED"), true);
   });
 
-  it("rejects skips and reverse moves", () => {
+  it("rejects skips, reverse moves, and reject-without-review", () => {
     assert.equal(canTransition("SUBMITTED", "COMPLETED"), false);
+    assert.equal(canTransition("SUBMITTED", "REJECTED"), false);
     assert.equal(canTransition("COMPLETED", "SUBMITTED"), false);
     assert.equal(canTransition("REJECTED", "VERIFIED"), false);
   });
 
-  it("blocks students from verification and self-approval", () => {
+  it("blocks students and any self-service on the claimant's own claim", () => {
     const student = actorCanApply("STUDENT", "UNDER_REVIEW", "VERIFIED", {
       actorId: "staff-1",
       claimantId: "stu-1",
@@ -32,6 +33,13 @@ describe("claim state machine", () => {
     });
     assert.equal(selfVerify, false);
 
+    const selfReview = actorCanApply("STAFF", "SUBMITTED", "UNDER_REVIEW", {
+      actorId: "stu-1",
+      claimantId: "stu-1",
+      itemReporterId: "stu-2",
+    });
+    assert.equal(selfReview, false);
+
     const staffOk = actorCanApply("STAFF", "UNDER_REVIEW", "VERIFIED", {
       actorId: "staff-1",
       claimantId: "stu-1",
@@ -41,6 +49,7 @@ describe("claim state machine", () => {
   });
 
   it("exposes next statuses and terminals", () => {
+    assert.deepEqual(nextStatuses("SUBMITTED"), ["UNDER_REVIEW"]);
     assert.deepEqual(nextStatuses("UNDER_REVIEW"), ["VERIFIED", "REJECTED"]);
     assert.equal(isTerminal("COMPLETED"), true);
     assert.equal(isTerminal("SUBMITTED"), false);

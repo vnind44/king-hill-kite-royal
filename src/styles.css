@@ -18,6 +18,9 @@
   --color-danger: #f87171;
   --color-border: rgb(248 250 252 / 0.1);
   --color-card: #1e293b;
+  --color-welcome: #0b1f33;
+  --color-welcome-card: #173047;
+  --color-welcome-well: #234056;
 
   --radius-xs: 6px;
   --radius-sm: 10px;
@@ -68,6 +71,37 @@ html:not(.dark) {
   :focus-visible {
     outline: 2px solid var(--color-teal);
     outline-offset: 2px;
+  }
+}
+
+@layer components {
+  .welcome-fan-card {
+    position: absolute;
+    left: 50%;
+    top: 0.5rem;
+    width: 16rem;
+    transform-origin: center center;
+    will-change: transform, opacity;
+    transition:
+      transform 520ms cubic-bezier(0.22, 1, 0.36, 1),
+      opacity 280ms ease,
+      box-shadow 420ms ease,
+      z-index 0ms linear 260ms;
+  }
+
+  .welcome-fan-card.is-front {
+    z-index: 30;
+    box-shadow: 0 22px 50px rgb(2 6 23 / 0.5);
+    transition-delay: 0ms, 0ms, 0ms, 0ms;
+  }
+
+  .welcome-fan-card:not(.is-front) {
+    z-index: 8;
+    box-shadow: 0 12px 28px rgb(2 6 23 / 0.32);
+  }
+
+  .welcome-fan-card:active:not(.is-front) {
+    filter: brightness(1.08);
   }
 }
 

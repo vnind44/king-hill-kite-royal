@@ -8,6 +8,13 @@ export function useCampusProfile() {
     queryKey: ["campus-profile", user?.id],
     queryFn: () => getMyProfile(),
     enabled: Boolean(user),
+    retry: 1,
   });
-  return { user, isPending: isPending || (Boolean(user) && query.isPending), profile: query.data ?? null, refresh: query.refetch };
+  return {
+    user,
+    isPending: isPending || (Boolean(user) && query.isPending),
+    profile: query.data ?? null,
+    error: query.error instanceof Error ? query.error : query.error ? new Error("Could not load profile") : null,
+    refresh: query.refetch,
+  };
 }

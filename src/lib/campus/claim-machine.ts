@@ -1,9 +1,9 @@
 import type { ClaimStatus, Role } from "./types";
 
 const TRANSITIONS: Record<ClaimStatus, ClaimStatus[]> = {
-  SUBMITTED: ["UNDER_REVIEW", "REJECTED"],
+  SUBMITTED: ["UNDER_REVIEW"],
   UNDER_REVIEW: ["VERIFIED", "REJECTED"],
-  VERIFIED: ["HANDOVER_PENDING", "REJECTED"],
+  VERIFIED: ["HANDOVER_PENDING"],
   REJECTED: [],
   HANDOVER_PENDING: ["COMPLETED"],
   COMPLETED: [],
@@ -20,9 +20,7 @@ export function actorCanApply(
   opts: { actorId: string; claimantId: string; itemReporterId: string },
 ): boolean {
   if (!canTransition(from, to)) return false;
-  if (opts.actorId === opts.claimantId && (to === "VERIFIED" || to === "COMPLETED")) {
-    return false;
-  }
+  if (opts.actorId === opts.claimantId) return false;
   if (role === "STUDENT") return false;
   if (role === "STAFF" || role === "ADMIN") return true;
   return false;

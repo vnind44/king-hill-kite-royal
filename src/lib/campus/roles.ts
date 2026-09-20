@@ -1,4 +1,5 @@
-import type { Role } from "./types";
+import type { Role } from "./types.ts";
+import { canAssignRole as canAssignRoleDecision } from "./role-assignment.ts";
 
 export function isStaff(role: Role): boolean {
   return role === "STAFF" || role === "ADMIN";
@@ -8,11 +9,7 @@ export function isAdmin(role: Role): boolean {
   return role === "ADMIN";
 }
 
-export function canAssignRole(actor: Role, targetCurrent: Role, next: Role): boolean {
-  if (actor !== "ADMIN") return false;
-  if (next === targetCurrent) return false;
-  return true;
-}
+export const canAssignRole = canAssignRoleDecision;
 
 export function canSelfPromote(actorId: string, targetId: string): boolean {
   return actorId === targetId;

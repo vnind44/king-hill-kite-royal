@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
-import { filterItems, itemFromDto, shouldSendNotification } from "./mapping.ts";
+import { filterItems, itemFromDto, redactItemForPublic, shouldSendNotification } from "./mapping.ts";
 
 describe("firestore-style item mapping", () => {
   it("maps snake_case documents and conceals incognito finders", () => {
@@ -20,6 +20,22 @@ describe("firestore-style item mapping", () => {
     assert.equal(item.itemType, "FOUND");
     assert.equal(item.locationZone, "Main Campus");
   });
+
+  it("strips identifying marks from the public view", () => {
+    const item = itemFromDto({
+      id: "i2",
+      reporter_id: "u1",
+      title: "Student ID",
+      category: "IDs & cards",
+      identifying_marks: "Name on reverse",
+      item_type: "FOUND",
+      status: "UNDER_REVIEW",
+      location: "Administration Block",
+      created_at: "t",
+    });
+    assert.equal(item.identifyingMarks, "Name on reverse");
+    assert.equal(redactItemForPublic(item).identifyingMarks, "");
+  });
 });
 
 describe("item search and filtering", () => {
@@ -34,6 +50,7 @@ describe("item search and filtering", () => {
       item_type: "FOUND",
       status: "UNDER_REVIEW",
       location: "Library",
+      location_zone: "Library",
       created_at: "t",
     }),
     itemFromDto({
@@ -44,6 +61,7 @@ describe("item search and filtering", () => {
       item_type: "LOST",
       status: "SEARCHING",
       location: "Administration Block",
+      location_zone: "Administration Block",
       created_at: "t",
     }),
   ];
@@ -53,9 +71,10 @@ describe("item search and filtering", () => {
     assert.equal(filterItems(items, { query: "student" })[0]?.id, "2");
   });
 
-  it("filters by category and type", () => {
+  it("filters by category, type, and location", () => {
     assert.equal(filterItems(items, { category: "Keys" }).length, 0);
     assert.equal(filterItems(items, { type: "LOST" }).length, 1);
+    assert.equal(filterItems(items, { location: "Library" }).length, 1);
     assert.equal(filterItems(items, { category: "All", type: "ALL" }).length, 2);
   });
 });

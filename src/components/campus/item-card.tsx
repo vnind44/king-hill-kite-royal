@@ -30,9 +30,10 @@ export function ItemGlyph({ kind }: { kind: string }) {
 }
 
 export function ItemCard({ item }: { item: CampusItem }) {
+  const awaiting = item.itemType === "FOUND" && !item.inCustody;
   return (
     <Link to="/items/$itemId" params={{ itemId: item.id }} className="block">
-      <Card className="flex items-center gap-3 p-3">
+      <Card className="flex min-h-20 items-center gap-3 p-4">
         <div className="grid size-12 shrink-0 place-items-center rounded-sm bg-teal/15 text-teal">
           {item.photoUrl ? (
             <img src={item.photoUrl} alt="" className="size-12 rounded-sm object-cover" />
@@ -43,13 +44,17 @@ export function ItemCard({ item }: { item: CampusItem }) {
         <div className="min-w-0 flex-1">
           <div className="flex items-center justify-between gap-2">
             <p className="truncate font-semibold">{item.title}</p>
-            <StatusBadge status={item.status} />
+            <StatusBadge status={item.itemType} />
           </div>
           <p className="mt-0.5 flex items-center gap-1 truncate text-xs text-muted">
             <MapPin className="size-3" />
-            {item.location}
+            {item.locationZone}
+            {item.location !== item.locationZone ? ` · ${item.location}` : ""}
             <span className="text-border">·</span>
             {timeAgo(item.createdAt)}
+          </p>
+          <p className="mt-1 text-xs font-semibold uppercase tracking-wide text-muted">
+            {awaiting ? "Awaiting staff receipt" : item.status.replaceAll("_", " ")}
           </p>
           {item.matchScore ? (
             <p className="mt-1 text-xs font-medium text-teal">{item.matchScore}% Smart Match</p>

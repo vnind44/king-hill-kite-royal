@@ -1,6 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
 import { Button, Field, Input } from "@/components/campus/ui";
+import { PageNav } from "@/components/campus/shell";
 
 export const Route = createFileRoute("/forgot-password")({ component: ForgotPassword });
 
@@ -39,7 +40,10 @@ function ForgotPassword() {
 
   return (
     <main className="mx-auto flex min-h-screen max-w-lg flex-col px-6 py-8">
-      <h1 className="font-display text-4xl">Reset password</h1>
+      <div className="-ml-2">
+        <PageNav />
+      </div>
+      <h1 className="mt-4 font-display text-4xl">Reset password</h1>
       <p className="mt-2 text-sm text-muted">Enter the campus email on your account.</p>
       <form className="mt-8 space-y-4" onSubmit={onSubmit}>
         <Field label="Campus email">

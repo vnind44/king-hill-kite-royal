@@ -16,6 +16,7 @@ export type ItemDto = {
   location_zone?: string;
   photo_url?: string | null;
   custody_desk_id?: string | null;
+  in_custody?: boolean;
   match_score?: number | null;
   match_item_id?: string | null;
   match_explanation?: string | null;
@@ -41,6 +42,7 @@ export function itemFromDto(row: ItemDto): CampusItem {
     locationZone: row.location_zone ?? "Main Campus",
     photoUrl: row.photo_url ?? null,
     custodyDeskId: row.custody_desk_id ?? null,
+    inCustody: Boolean(row.in_custody),
     matchScore: row.match_score ?? null,
     matchItemId: row.match_item_id ?? null,
     matchExplanation: row.match_explanation ?? null,
@@ -49,16 +51,23 @@ export function itemFromDto(row: ItemDto): CampusItem {
   };
 }
 
+export function redactItemForPublic(item: CampusItem): CampusItem {
+  return { ...item, identifyingMarks: "" };
+}
+
 export function filterItems(
   items: CampusItem[],
-  opts: { query?: string; category?: string; type?: ItemType | "ALL" },
+  opts: { query?: string; category?: string; type?: ItemType | "ALL"; location?: string },
 ): CampusItem[] {
   const q = (opts.query ?? "").trim().toLowerCase();
   return items.filter((item) => {
     if (opts.type && opts.type !== "ALL" && item.itemType !== opts.type) return false;
     if (opts.category && opts.category !== "All" && item.category !== opts.category) return false;
+    if (opts.location && opts.location !== "All" && item.locationZone !== opts.location && item.location !== opts.location) {
+      return false;
+    }
     if (!q) return true;
-    const hay = `${item.title} ${item.description} ${item.location} ${item.color} ${item.brand} ${item.category}`.toLowerCase();
+    const hay = `${item.title} ${item.description} ${item.location} ${item.locationZone} ${item.color} ${item.brand} ${item.category}`.toLowerCase();
     return hay.includes(q);
   });
 }

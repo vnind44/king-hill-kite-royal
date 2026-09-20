@@ -83,3 +83,48 @@ export function StatusBadge({ status }: { status: string }) {
     </span>
   );
 }
+
+export function FilterChip({
+  active,
+  onClick,
+  children,
+}: {
+  active: boolean;
+  onClick: () => void;
+  children: React.ReactNode;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={cn(
+        "min-h-11 whitespace-nowrap rounded-full px-3.5 text-xs font-semibold transition-colors duration-150",
+        active ? "bg-fg text-bg" : "bg-surface-2 text-muted",
+      )}
+    >
+      {children}
+    </button>
+  );
+}
+
+export function ChipRow({
+  values,
+  selected,
+  onSelect,
+  label,
+}: {
+  values: readonly string[];
+  selected: string;
+  onSelect: (value: string) => void;
+  label?: (value: string) => string;
+}) {
+  return (
+    <div className="flex gap-2 overflow-x-auto pb-1">
+      {values.map((value) => (
+        <FilterChip key={value} active={selected === value} onClick={() => onSelect(value)}>
+          {label ? label(value) : value}
+        </FilterChip>
+      ))}
+    </div>
+  );
+}
