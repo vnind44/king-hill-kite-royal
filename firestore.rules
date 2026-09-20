@@ -1,0 +1,81 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function signedIn() {
+      return request.auth != null;
+    }
+    function uid() {
+      return request.auth.uid;
+    }
+    function userDoc() {
+      return get(/databases/$(database)/documents/users/$(uid())).data;
+    }
+    function isStaff() {
+      return signedIn() && userDoc().role in ['STAFF', 'ADMIN'];
+    }
+    function isAdmin() {
+      return signedIn() && userDoc().role == 'ADMIN';
+    }
+
+    match /users/{userId} {
+      allow read: if signedIn() && (uid() == userId || isStaff());
+      allow create: if signedIn()
+        && uid() == userId
+        && request.resource.data.role == 'STUDENT'
+        && request.resource.data.karma == 0
+        && request.resource.data.trustScore == 100;
+      // Students may update contact fields only — never role, karma, trust, or counts.
+      allow update: if signedIn() && uid() == userId
+        && !request.resource.data.diff(resource.data).affectedKeys()
+          .hasAny(['role', 'karma', 'trustScore', 'itemsReturned', 'recoveredItems']);
+      // Admins may change another user's role. Self-promotion is blocked.
+      allow update: if isAdmin() && uid() != userId;
+      allow delete: if false;
+    }
+
+    match /items/{itemId} {
+      allow read: if true;
+      allow create: if signedIn() && request.resource.data.reporterId == uid();
+      allow update: if signedIn() && (
+        resource.data.reporterId == uid() || isStaff()
+      );
+      allow delete: if isAdmin();
+    }
+
+    match /claims/{claimId} {
+      allow read: if signedIn() && (
+        resource.data.claimantId == uid() ||
+        resource.data.ownerId == uid() ||
+        isStaff()
+      );
+      allow create: if signedIn()
+        && request.resource.data.claimantId == uid()
+        && request.resource.data.status == 'SUBMITTED';
+      allow update: if isStaff() && resource.data.claimantId != uid();
+      allow delete: if false;
+    }
+
+    match /handovers/{handoverId} {
+      allow read: if signedIn() && (resource.data.claimantId == uid() || isStaff());
+      allow create: if isStaff();
+      allow update, delete: if false;
+    }
+
+    match /notifications/{id} {
+      allow read, update: if signedIn() && resource.data.uid == uid();
+      allow create: if signedIn();
+      allow delete: if signedIn() && resource.data.uid == uid();
+    }
+
+    match /activity/{id} {
+      allow read: if signedIn() && (resource.data.actorUid == uid() || isStaff());
+      allow create: if signedIn();
+      allow delete: if false;
+    }
+
+    match /desks/{deskId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+  }
+}

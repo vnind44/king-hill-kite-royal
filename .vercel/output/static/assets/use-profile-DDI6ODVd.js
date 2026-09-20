@@ -1,0 +1,1 @@
+import{b as e,o as t}from"./api-YZaPN8u6.js";import{t as n}from"./use-current-user-CjKJlXQo.js";function r(){let{user:r,isPending:i}=n(),a=e({queryKey:[`campus-profile`,r?.id],queryFn:()=>t(),enabled:!!r});return{user:r,isPending:i||!!r&&a.isPending,profile:a.data??null,refresh:a.refetch}}export{r as t};

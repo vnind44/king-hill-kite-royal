@@ -1,0 +1,36 @@
+{
+  "url": "http://127.0.0.1:8080/",
+  "viewports": {
+    "desktop": {
+      "width": 1280,
+      "height": 800,
+      "status": 200,
+      "title": "Campus Lost & Found",
+      "hasCanvas": false,
+      "bodyTextLen": 244,
+      "bodyTextHash": "522265525d8d090178bbb09ff046ecd11338954b7a1745bc08010e4b2cefdee3",
+      "bodyTextPrefix": "Campus Lost & Found Room keys Student Center Student ID Administ",
+      "horizontalOverflow": false,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "screenshot": "/workspace/screenshots/app-builder-preview.png"
+    },
+    "mobile": {
+      "width": 390,
+      "height": 844,
+      "status": 200,
+      "title": "Campus Lost & Found",
+      "hasCanvas": false,
+      "bodyTextLen": 244,
+      "bodyTextHash": "522265525d8d090178bbb09ff046ecd11338954b7a1745bc08010e4b2cefdee3",
+      "bodyTextPrefix": "Campus Lost & Found Room keys Student Center Student ID Administ",
+      "horizontalOverflow": false,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "screenshot": "/workspace/screenshots/app-builder-preview-mobile.png"
+    }
+  },
+  "brandWarnings": [],
+  "authWarnings": [],
+  "verdictFile": "/workspace/screenshots/app-builder-preview.json"
+}

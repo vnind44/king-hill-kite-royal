@@ -1,0 +1,1 @@
+function e(e){return e===`STAFF`||e===`ADMIN`}function t(e){return e===`ADMIN`}export{e as n,t};

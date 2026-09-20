@@ -1,0 +1,1 @@
+var e=[`Electronics`,`Bags & luggage`,`IDs & cards`,`Keys`,`Bottles & drinkware`,`Apparel`,`Accessories`,`Other`],t=[`Main Campus`,`Library`,`Student Center`,`Administration Block`,`Security Office`];export{e as n,t};

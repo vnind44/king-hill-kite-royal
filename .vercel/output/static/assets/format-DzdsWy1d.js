@@ -1,0 +1,1 @@
+function e(e){let t=new Date(e).getTime();if(Number.isNaN(t))return``;let n=Math.max(0,Date.now()-t),r=Math.floor(n/6e4);if(r<1)return`Just now`;if(r<60)return`${r}m ago`;let i=Math.floor(r/60);if(i<24)return`${i}h ago`;let a=Math.floor(i/24);return a<7?`${a}d ago`:new Date(e).toLocaleDateString()}export{e as t};

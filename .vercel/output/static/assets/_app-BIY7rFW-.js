@@ -1,0 +1,1 @@
+import{t as e}from"./jsx-runtime-FXir3jLF.js";import{t}from"./shell-DaUTMiQR.js";import{o as n}from"./index-DMfl_Ajv.js";var r=e(),i=()=>(0,r.jsx)(t,{children:(0,r.jsx)(n,{})});export{i as component};
